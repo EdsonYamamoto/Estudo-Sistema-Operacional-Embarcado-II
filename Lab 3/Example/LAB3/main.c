@@ -12,20 +12,30 @@
 void vTask1( void *pvParameters );
 void vTask2( void *pvParameters );
 
+void vTaskFunction(void* pvParameters);
+
+const char* pcTextForTask1 = "Task 1 is running \r\n";
+const char* pcTextForTask2 = "Task 2 is running \r\n";
+
 /*-----------------------------------------------------------*/
 
 int main( void )
 {
 	/* Create one of the two tasks. */
-	xTaskCreate(	vTask1,		/* Pointer to the function that implements the task. */
-					"Task 1",	/* Text name for the task.  This is to facilitate debugging only. */
-					1000,		/* Stack depth - most small microcontrollers will use much less stack than this. */
-					NULL,		/* We are not using the task parameter. */
-					1,			/* This task will run at priority 1. */
-					NULL );		/* We are not using the task handle. */
+
+	//xTaskCreate(	vTask1,		/* Pointer to the function that implements the task. */
+	//				"Task 1",	/* Text name for the task.  This is to facilitate debugging only. */
+	//				1000,		/* Stack depth - most small microcontrollers will use much less stack than this. */
+	//				NULL,		/* We are not using the task parameter. */
+	//				1,			/* This task will run at priority 1. */
+	//				NULL );		/* We are not using the task handle. */
 
 	/* Create the other task in exactly the same way. */
-	xTaskCreate( vTask2, "Task 2", 1000, NULL, 1, NULL );
+	// xTaskCreate( vTask2, "Task 2", 1000, NULL, 3, NULL );
+
+
+	xTaskCreate(vTaskFunction,"task 1", 1000, (void*)pcTextForTask1, 1, NULL);
+	xTaskCreate(vTaskFunction, "task 2", 1000, (void*)pcTextForTask2, 1, NULL);
 
 	/* Start the scheduler to start the tasks executing. */
 	vTaskStartScheduler();	
@@ -51,12 +61,14 @@ volatile uint32_t ul;
 		vPrintString( pcTaskName );
 
 		/* Delay for a period. */
-		for( ul = 0; ul < mainDELAY_LOOP_COUNT; ul++ )
-		{
+		//for( ul = 0; ul < mainDELAY_LOOP_COUNT; ul++ )
+		//{
 			/* This loop is just a very crude delay implementation.  There is
 			nothing to do in here.  Later exercises will replace this crude
 			loop with a proper delay/sleep function. */
-		}
+		//}
+
+		//vTaskDelay(500, portTICK_PERIOD_MS);
 	}
 }
 /*-----------------------------------------------------------*/
@@ -72,14 +84,27 @@ volatile uint32_t ul;
 		/* Print out the name of this task. */
 		vPrintString( pcTaskName );
 
-		/* Delay for a period. */
-		for( ul = 0; ul < mainDELAY_LOOP_COUNT; ul++ )
-		{
+		///* Delay for a period. */
+		//for( ul = 0; ul < mainDELAY_LOOP_COUNT; ul++ )
+		//{
 			/* This loop is just a very crude delay implementation.  There is
 			nothing to do in here.  Later exercises will replace this crude
 			loop with a proper delay/sleep function. */
-		}
+		//}
+
+		vTaskDelay(1000, portTICK_PERIOD_MS);
 	}
 }
 
+void vTaskFunction(void *pvParameters){
+	char* pcTaskName;
+	const TickType_t xDelay250ms = pdMS_TO_TICKS( (unsigned long) 250UL);
 
+	pcTaskName = (char*)pvParameters;
+	for (;;)
+	{
+		vPrintString(pcTaskName);
+		vTaskDelay(xDelay250ms);
+	}
+	return;
+}
